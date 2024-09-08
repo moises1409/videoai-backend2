@@ -10,12 +10,19 @@ app = Flask(__name__)
 CORS(app)
 
 # API Clients and keys
-openai_api_key = os.getenv("OPENAI_API_KEY")
+#openai_api_key = os.getenv("OPENAI_API_KEY")
+
+api_key = os.getenv('OPENAI_API_KEY')
+if not api_key:
+    raise ValueError("Missing OpenAI API key in environment variables.")
+
+client = OpenAI(api_key=api_key)
+
 
 # Initialize API client
 #client = OpenAI(api_key=openai_api_key)
 
-client = OpenAI()
+#client = OpenAI()
 
 # Constants
 PROMPT_SYSTEM = """Write an engaging, great 5 scenes children's animated history. Each scene should have 1-2 sentences. 
