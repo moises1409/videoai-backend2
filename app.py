@@ -13,7 +13,7 @@ CORS(app)
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # Initialize API client
-client = OpenAI(api_key=openai_api_key)
+#client = OpenAI(api_key=openai_api_key)
 
 # Constants
 PROMPT_SYSTEM = """Write an engaging, great 5 scenes children's animated history. Each scene should have 1-2 sentences. 
