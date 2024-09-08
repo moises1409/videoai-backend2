@@ -43,6 +43,10 @@ class Story(BaseModel):
 def get_test():
     return "holas4s mundo"
 
+@app.route("/get_test", methods=['GET'])
+def get_test():
+    return "que pacha"
+
 @app.route("/get_story", methods=['GET'])
 def generate_story():
     topic= "una nina llamada Isabel tiene super poderes"
