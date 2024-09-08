@@ -31,40 +31,40 @@ PROMPT_SYSTEM = """Write an engaging, great 5 scenes children's animated history
 PROMPT_USER1 = "Story is about"
 PROMPT_USER2 = "Create the story in the following language:"
 
-#class Scene(BaseModel):
- #   sentences: str
-#  image_prompt: str
+class Scene(BaseModel):
+   sentences: str
+   image_prompt: str
 
-#class Story(BaseModel):
-  #  scenes: list[Scene]
-  #  complete_story: str
+class Story(BaseModel):
+    scenes: list[Scene]
+    complete_story: str
 
 @app.route("/", methods=['GET'])
 def get_test():
     return "holas4s mundo"
 
-#@app.route("/get_story", methods=['GET'])
-#def generate_story():
-#    topic= "una nina llamada Isabel tiene super poderes"
-#    language = "Spanish"
-#    try:
-#        completion = client.beta.chat.completions.parse(
-#        #model="gpt-4o-2024-08-06",
-#        model = "gpt-4o-mini",
+@app.route("/get_story", methods=['GET'])
+def generate_story():
+    topic= "una nina llamada Isabel tiene super poderes"
+    language = "Spanish"
+    try:
+        completion = client.beta.chat.completions.parse(
+        #model="gpt-4o-2024-08-06",
+        model = "gpt-4o-mini",
         
-#        messages=[
-#            {"role": "system", "content": PROMPT_SYSTEM},
-#            {"role": "user", "content": PROMPT_USER1 + topic},
-#            {"role": "user", "content": PROMPT_USER2 +language}
- #       ],
- #       response_format=Story,
- #       )
- #       response = completion.choices[0].message.parsed
- #       response_dict = response.model_dump()
- #       return jsonify(response_dict)
- #   except Exception as e:
- #       print(f"Failed to generate story: {e}")
- #       return None
+        messages=[
+            {"role": "system", "content": PROMPT_SYSTEM},
+            {"role": "user", "content": PROMPT_USER1 + topic},
+            {"role": "user", "content": PROMPT_USER2 +language}
+        ],
+        response_format=Story,
+        )
+        response = completion.choices[0].message.parsed
+        response_dict = response.model_dump()
+        return jsonify(response_dict)
+    except Exception as e:
+        print(f"Failed to generate story: {e}")
+        return None
 
 
 
