@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from fonctions import *
+#from fonctions import *
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
@@ -12,14 +12,14 @@ CORS(app)
 
 @app.route("/", methods=['GET'])
 def get_test():
-    return "holass mundo"
+    return "holas4s mundo"
 
-@app.route("/get_story", methods=['GET'])
-def get_story():
-    topic= "una nina llamada Isabel tiene super poderes"
-    language = "Spanish"
-    response = generate_story(topic, language)
-    return jsonify(response)
+#@app.route("/get_story", methods=['GET'])
+#def get_story():
+ #   topic= "una nina llamada Isabel tiene super poderes"
+ #   language = "Spanish"
+ #   response = generate_story(topic, language)
+ #   return jsonify(response)
     
     
     
