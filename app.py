@@ -14,6 +14,10 @@ CORS(app)
 def get_test():
     return "holas4s mundo"
 
+@app.route("/get_story", methods=['GET'])
+def get_story():
+    return "dame vida"
+
 #@app.route("/get_story", methods=['GET'])
 #def get_story():
  #   topic= "una nina llamada Isabel tiene super poderes"
