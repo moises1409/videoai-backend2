@@ -12,6 +12,11 @@ CORS(app)
 # API Clients and keys
 #openai_api_key = os.getenv("OPENAI_API_KEY")
 
+api_key = os.getenv('OPENAI_API_KEY')
+if not api_key:
+    raise ValueError("Missing OpenAI API key in environment variables.")
+
+client = OpenAI(api_key=api_key)
 
 
 
@@ -27,13 +32,6 @@ PROMPT_SYSTEM = """Write an engaging, great 5 scenes children's animated history
 PROMPT_USER1 = "Story is about"
 PROMPT_USER2 = "Create the story in the following language:"
 
-class Scene(BaseModel):
-   sentences: str
-   image_prompt: str
-
-class Story(BaseModel):
-    scenes: list[Scene]
-    complete_story: str
 
 
 @app.route("/", methods=['GET'])
