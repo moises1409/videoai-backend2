@@ -15,6 +15,9 @@ if not api_key:
 
 client = OpenAI(api_key=api_key)
 
+class Scene(BaseModel):
+   sentences: str
+   image_prompt: str
 
 # Constants
 PROMPT_SYSTEM = """Write an engaging, great 5 scenes children's animated history. Each scene should have 1-2 sentences. 
