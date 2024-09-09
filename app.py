@@ -12,11 +12,7 @@ CORS(app)
 # API Clients and keys
 #openai_api_key = os.getenv("OPENAI_API_KEY")
 
-api_key = os.getenv('OPENAI_API_KEY')
-if not api_key:
-    raise ValueError("Missing OpenAI API key in environment variables.")
 
-client = OpenAI(api_key=api_key)
 
 
 # Initialize API client
