@@ -32,13 +32,6 @@ PROMPT_SYSTEM = """Write an engaging, great 5 scenes children's animated history
 PROMPT_USER1 = "Story is about"
 PROMPT_USER2 = "Create the story in the following language:"
 
-class Scene(BaseModel):
-   sentences: str
-   image_prompt: str
-
-class Story(BaseModel):
-    scenes: list[Scene]
-    complete_story: str
 
 @app.route("/", methods=['GET'])
 def get_test():
