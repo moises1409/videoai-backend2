@@ -18,6 +18,12 @@ CORS(app)
 def get_test():
     return "holas4s mundo"
 
+@app.route("/get_test", methods=['GET'])
+def get_test2():
+    return "que pacha"
+
+
+
 
 #@app.route("/get_story", methods=['GET'])
 #def get_story():
