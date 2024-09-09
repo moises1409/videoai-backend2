@@ -41,7 +41,27 @@ def get_test():
 def get_test2():
     return "que pacha"
 
-
+@app.route("/get_story", methods=['GET'])
+def generate_story():
+    topic= "una nina llamada Isabel tiene super poderes"
+    language = "Spanish"
+    try:
+        completion = client.beta.chat.completions.parse(
+        #model="gpt-4o-2024-08-06",
+        model = "gpt-4o-mini",
+        
+        messages=[
+            {"role": "system", "content": PROMPT_SYSTEM},
+            {"role": "user", "content": PROMPT_USER1 + topic},
+            {"role": "user", "content": PROMPT_USER2 +language}
+        ],
+        )
+        response = completion.choices[0].message
+        
+        return jsonify(response)
+    except Exception as e:
+        print(f"Failed to generate story: {e}")
+        return None
 
 
 #@app.route("/get_story", methods=['GET'])
