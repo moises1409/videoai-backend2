@@ -19,6 +19,10 @@ class Scene(BaseModel):
    sentences: str
    image_prompt: str
 
+class Story(BaseModel):
+    scenes: list[Scene]
+    complete_story: str
+
 # Constants
 PROMPT_SYSTEM = """Write an engaging, great 5 scenes children's animated history. Each scene should have 1-2 sentences. 
             Generate appropriate prompt to generate a coherent image for each scene. Limit of 5 scenes,
