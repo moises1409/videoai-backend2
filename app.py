@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 from openai import OpenAI
 from pydantic import BaseModel
+from typing import List
 
 app = Flask(__name__)
 CORS(app)
@@ -20,7 +21,7 @@ class Scene(BaseModel):
    image_prompt: str
 
 class Story(BaseModel):
-    scenes: list[Scene]
+    scenes: List[Scene]
     complete_story: str
 
 # Constants
