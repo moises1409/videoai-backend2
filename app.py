@@ -57,8 +57,10 @@ def generate_story():
         ],
         )
         response = completion.choices[0].message
+        response_dict = response.model_dump()
+        return jsonify(response_dict)
         
-        return jsonify(response)
+        return response
     except Exception as e:
         print(f"Failed to generate story: {e}")
         return None
