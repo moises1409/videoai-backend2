@@ -7,6 +7,7 @@ from openai import OpenAI
 from pydantic import BaseModel
 from typing import List
 import replicate
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -14,6 +15,7 @@ CORS(app)
 api_key = os.getenv('OPENAI_API_KEY')
 if not api_key:
     raise ValueError("Missing OpenAI API key in environment variables.")
+eleven_labs_api_key = os.getenv("ELEVENLABS_API_KEY")
 
 client = OpenAI(api_key=api_key)
 
@@ -31,6 +33,12 @@ PROMPT_SYSTEM = """Write an engaging, great 5 scenes children's animated history
             do not exceed 2 sentences per scene. Do not exceed 5 scenes."""
 PROMPT_USER1 = "Story is about"
 PROMPT_USER2 = "Create the story in the following language:"
+CHUNK_SIZE = 1024
+SCOPES = ['https://www.googleapis.com/auth/drive.file']
+VOICE_ID_ES = "Ir1QNHvhaJXbAGhT50w3"
+VOICE_ID_DEFAULT = "pNInz6obpgDQGcFmaJgB"
+VOICE_ID_FR = "hFgOzpmS0CMtL2to8sAl"
+VOICE_ID_EN = "jsCqWAovK2LkecY7zXl4"
 
 
 @app.route("/", methods=['GET'])
@@ -78,9 +86,47 @@ def generate_image():
         print(f"Error generating image: {e}")
         return None
 
-@app.route("/test", methods=['GET'])
-def generate_image():
-    return "hola"
+@app.route("/get_audio", methods=['GET'])
+def generate_audio():
+    text = request.args.get('text')
+    language = request.args.get('language')
+
+    if language == "Spanish":
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID_ES}"
+    if language == "French":
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID_ES}"
+    if language == "English":
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID_ES}"
+    else:
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID_ES}"  
+    
+    headers = {
+        "Accept": "audio/mpeg",
+        "Content-Type": "application/json",
+        "xi-api-key": eleven_labs_api_key
+    }
+    data = {
+        "text": text,
+        "model_id": "eleven_turbo_v2_5",
+        "voice_settings": {
+        "stability": 0.5,
+        "similarity_boost": 0.5
+        }
+    }
+    try:
+        response = requests.post(url, json=data, headers=headers)
+        response.raise_for_status()
+        file_name = "audio.mp3"
+        with open(file_name, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+                if chunk:
+                    f.write(chunk)
+        
+        #return upload_file_to_gd(file_name)
+        return "hola, buenassss"
+    except Exception as e:
+        print(f"Error generating audio: {e}")
+        return None
 
 #@app.route("/get_story", methods=['GET'])
 #def get_story():
