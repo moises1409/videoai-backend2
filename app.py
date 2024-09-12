@@ -78,6 +78,10 @@ def generate_image():
         print(f"Error generating image: {e}")
         return None
 
+@app.route("/test", methods=['GET'])
+def generate_image():
+    return "hola"
+
 #@app.route("/get_story", methods=['GET'])
 #def get_story():
  #   topic= "una nina llamada Isabel tiene super poderes"
