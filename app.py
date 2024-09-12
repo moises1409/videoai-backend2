@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 #from fonctions import *
 from dotenv import load_dotenv
@@ -36,38 +36,13 @@ PROMPT_USER2 = "Create the story in the following language:"
 def get_test():
     return "holas4s mundo"
 
-@app.route("/get_test", methods=['GET'])
-def get_test2():
-    return "que pacha"
-
-@app.route("/get_story2", methods=['GET'])
-def generate_story2():
-    topic= "una nina llamada Isabel tiene super poderes"
-    language = "Spanish"
-    try:
-        completion = client.beta.chat.completions.parse(
-        #model="gpt-4o-2024-08-06",
-        model = "gpt-4o-mini",
-        
-        messages=[
-            {"role": "system", "content": PROMPT_SYSTEM},
-            {"role": "user", "content": PROMPT_USER1 + topic},
-            {"role": "user", "content": PROMPT_USER2 +language}
-        ],
-        )
-        response = completion.choices[0].message
-        response_dict = response.model_dump()
-        return jsonify(response_dict)
-        
-        return response
-    except Exception as e:
-        print(f"Failed to generate story: {e}")
-        return None
 
 @app.route("/get_story", methods=['GET'])
 def generate_story():
-    topic= "una nina llamada Isabel tiene super poderes"
+    topic = request.args.get('topic', "")
+    #language = request.args.get('language', "")
     language = "Spanish"
+    
     try:
         completion = client.beta.chat.completions.parse(
         #model="gpt-4o-2024-08-06",
