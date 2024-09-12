@@ -6,6 +6,7 @@ import os
 from openai import OpenAI
 from pydantic import BaseModel
 from typing import List
+import replicate
 
 app = Flask(__name__)
 CORS(app)
@@ -39,29 +40,43 @@ def get_test():
 
 @app.route("/get_story", methods=['GET'])
 def generate_story():
-    topic = request.args.get('topic', "")
-    #language = request.args.get('language', "")
-    language = "Spanish"
+    topic = request.args.get('topic')
+    language = request.args.get('language')
+    if topic and language:
+        try:
+            completion = client.beta.chat.completions.parse(
+            #model="gpt-4o-2024-08-06",
+            model = "gpt-4o-mini",
+            
+            messages=[
+                {"role": "system", "content": PROMPT_SYSTEM},
+                {"role": "user", "content": PROMPT_USER1 + topic},
+                {"role": "user", "content": PROMPT_USER2 +language}
+            ],
+            response_format=Story,
+            )
+            response = completion.choices[0].message.parsed
+            response_dict = response.model_dump()
+            return jsonify(response_dict)
+        except Exception as e:
+            print(f"Failed to generate story: {e}")
+            return None
+    else:
+        return jsonify({'error': 'No topic provided'}), 400
     
+@app.route("/get_image", methods=['GET'])
+def generate_image():
+    prompt = request.args.get('prompt')
     try:
-        completion = client.beta.chat.completions.parse(
-        #model="gpt-4o-2024-08-06",
-        model = "gpt-4o-mini",
-        
-        messages=[
-            {"role": "system", "content": PROMPT_SYSTEM},
-            {"role": "user", "content": PROMPT_USER1 + topic},
-            {"role": "user", "content": PROMPT_USER2 +language}
-        ],
-        response_format=Story,
+        output = replicate.run(
+            #"black-forest-labs/flux-pro",
+            "black-forest-labs/flux-schnell",
+            input={"steps": 25,"prompt": prompt,"output_format": "jpg"}
         )
-        response = completion.choices[0].message.parsed
-        response_dict = response.model_dump()
-        return jsonify(response_dict)
+        return output[0]
     except Exception as e:
-        print(f"Failed to generate story: {e}")
+        print(f"Error generating image: {e}")
         return None
-
 
 #@app.route("/get_story", methods=['GET'])
 #def get_story():
