@@ -43,7 +43,7 @@ VOICE_ID_EN = "jsCqWAovK2LkecY7zXl4"
 
 @app.route("/", methods=['GET'])
 def get_test():
-    return "holas4s mundo"
+    return "holas4s mundos"
 
 
 @app.route("/get_story", methods=['GET'])
