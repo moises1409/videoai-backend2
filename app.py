@@ -1,3 +1,4 @@
+import uuid
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 #from fonctions import *
@@ -8,6 +9,7 @@ from pydantic import BaseModel
 from typing import List
 import replicate
 import requests
+from azure.storage.blob import BlobServiceClient
 
 app = Flask(__name__)
 CORS(app)
@@ -122,11 +124,26 @@ def generate_audio():
                 if chunk:
                     f.write(chunk)
         
-        #return upload_file_to_gd(file_name)
-        return "hola, buenassss"
+        return upload_to_blob_storage(file_name)
+        #return "hola, buenassss"
     except Exception as e:
         print(f"Error generating audio: {e}")
         return None
+
+def upload_to_blob_storage(local_file_path):
+    connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    container_name = 'audio-files'
+    unique_id = uuid.uuid4()  # Generates a unique UUID
+    blob_name = f"{unique_id}.mp3"  # Create a unique blob name
+    blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+
+    with open(local_file_path, "rb") as data:
+        blob_client.upload_blob(data)
+
+    blob_url = blob_client.url
+    return blob_url
+
 
 #@app.route("/get_story", methods=['GET'])
 #def get_story():
