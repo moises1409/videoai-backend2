@@ -1,4 +1,5 @@
 import uuid
+import time
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 #from fonctions import *
@@ -18,6 +19,7 @@ api_key = os.getenv('OPENAI_API_KEY')
 if not api_key:
     raise ValueError("Missing OpenAI API key in environment variables.")
 eleven_labs_api_key = os.getenv("ELEVENLABS_API_KEY")
+creatomate_api_key = os.getenv("CREATOMATE_API_KEY")
 
 client = OpenAI(api_key=api_key)
 
@@ -125,10 +127,61 @@ def generate_audio():
                     f.write(chunk)
         
         return upload_to_blob_storage(file_name)
-        #return "hola, buenassss"
+        #return "hola"
     except Exception as e:
         print(f"Error generating audio: {e}")
         return None
+
+
+@app.route("/get_video_id", methods=['POST'])
+def generate_video_id():
+    scene_data = request.json.get('scene_data')
+
+    if not scene_data:
+        return jsonify({"error": "No scene data provided"}), 400
+    
+    for data in scene_data:
+          print("Image:", data[0])
+          print("Audio", data[1])
+    url = "https://api.creatomate.com/v1/renders"
+    headers = {
+        "Authorization": f"Bearer {creatomate_api_key}","Content-Type": "application/json"}
+    data = {
+        "template_id": "076cc0f8-ea7a-4bd9-819a-dd6d3e6e64a1",
+        "modifications": {"Image-1": "","Voiceover-1": "","Image-2": "","Voiceover-2": "","Image-3": "","Voiceover-3": "","Image-4": "","Voiceover-4": "","Image-5": "","Voiceover-5": ""}
+    }
+    try:
+        for i in range(min(len(scene_data), 6)):
+            image, audio = scene_data[i]
+            data['modifications'][f'Image-{i+1}'] = image
+            data['modifications'][f'Voiceover-{i+1}'] = audio
+        
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        get_url = url+"/"+response.json()[0]['id']
+        return jsonify({"video_url": get_url})
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return "0"
+
+@app.route("/get_video_final", methods=['GET'])
+def generate_video_final():
+    video_url_id = request.args.get('video_url_id')
+
+    if not video_url_id:
+        return jsonify({"error": "No video_url_id data provided"}), 400
+    
+    headers = {
+        "Authorization": f"Bearer {creatomate_api_key}","Content-Type": "application/json"}
+    try: 
+        response2 = requests.get(video_url_id, headers=headers)
+        video = response2.json()
+        return jsonify(video)
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return "0"   
 
 def upload_to_blob_storage(local_file_path):
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
