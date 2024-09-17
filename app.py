@@ -11,6 +11,7 @@ from typing import List
 import replicate
 import requests
 from azure.storage.blob import BlobServiceClient
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 CORS(app)
@@ -182,6 +183,21 @@ def generate_video_final():
     except Exception as e:
         print(f"An error occurred: {e}")
         return "0"   
+    
+@app.route('/delete_audio_files', methods=['POST'])
+def delete_audio_files():
+    data = request.json
+    audio_urls = data.get('audio_urls', [])
+    
+    if not audio_urls:
+        return jsonify({"error": "No audio URLs provided"}), 400
+
+    results = []
+    for url in audio_urls:
+        result = delete_from_blob_storage(url)
+        results.append({"url": url, "deleted": result})
+    
+    return jsonify({"results": results}), 200
 
 def upload_to_blob_storage(local_file_path):
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
@@ -197,16 +213,25 @@ def upload_to_blob_storage(local_file_path):
     blob_url = blob_client.url
     return blob_url
 
+# Function to delete a single file from Azure Blob Storage
+def delete_from_blob_storage(blob_url):
+    connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    
+    parsed_url = urlparse(blob_url)
+    path_parts = parsed_url.path.lstrip('/').split('/')
+    container_name = path_parts[0]
+    blob_name = '/'.join(path_parts[1:])
+    
+    blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+    try:
+        blob_client.delete_blob()
+        print(f"Blob {blob_name} deleted successfully from container {container_name}.")
+        return True
+    except Exception as e:
+        print(f"Failed to delete blob: {blob_name}. Error: {str(e)}")
+        return False
 
-#@app.route("/get_story", methods=['GET'])
-#def get_story():
- #   topic= "una nina llamada Isabel tiene super poderes"
- #   language = "Spanish"
- #   response = generate_story(topic, language)
- #   return jsonify(response)
-    
-    
-    
 
 if __name__ == "__main__":
     app.run
