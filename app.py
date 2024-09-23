@@ -12,6 +12,10 @@ import replicate
 import requests
 from azure.storage.blob import BlobServiceClient
 from urllib.parse import urlparse
+from moviepy.editor import ImageClip, AudioFileClip, TextClip, concatenate_videoclips
+import requests
+from io import BytesIO
+from PIL import Image
 
 app = Flask(__name__)
 CORS(app)
@@ -237,6 +241,80 @@ def delete_from_blob_storage(blob_url):
         print(f"Failed to delete blob: {blob_name}. Error: {str(e)}")
         return False
 
+@app.route('/auto_editor', methods=['GET'])
+def auto_editor():
+    scenes_data = [
+        {"image": "https://replicate.delivery/yhqm/ekkmdTBkBA3OCyUB1FujrbPxV6fzS25BKzXAimU9msE3J2fmA/out-0.jpg", "audio": "assets/audio.mp3", "text": "Scene 1: Introduction"},
+        {"image": "https://replicate.delivery/yhqm/eesxkLZgGdjEi0Fmuv9K0EnJGB8UQ1pfH0uGR470hQbzTsfNB/out-0.jpg", "audio": "assets/audio2.mp3", "text": "Scene 2: Main Content"},
+        {"image": "https://replicate.delivery/yhqm/UtoYGPZGq5bRCN1YbZwHF7FZC2xghwBz1QftYmfDrse3TsfNB/out-0.jpg", "audio": "assets/audio3.mp3", "text": "Scene 3: Conclusion"}
+    ]
+    
+    scenes = []
+    for scene_data in scenes_data:
+        image_path=scene_data["image"]
+        audio_path=scene_data["audio"]
+        text=scene_data["text"]
+        scene = create_scene(image_path, audio_path, text)
+        scenes.append(scene)
+
+    output_path = "final_video.mp4"
+    create_video_with_scenes(scenes, output_path)
+    
+    return jsonify({"results": output_path}), 200
+
+def download_image(image_url):
+    """
+    Downloads an image from a URL and saves it as a temporary file.
+    """
+    response = requests.get(image_url)
+    if response.status_code == 200:
+        img = Image.open(BytesIO(response.content))
+        # Save it to a temporary file (in memory or disk)
+        temp_image_path = "temp_image.jpg"
+        img.save(temp_image_path)
+        return temp_image_path
+    else:
+        raise Exception(f"Failed to download image from {image_url}")
+
+def create_scene(image_path_or_url, audio_path, text, duration=None):
+    if image_path_or_url.startswith("http"):
+        image_path = download_image(image_path_or_url)
+    else:
+        image_path = image_path_or_url
+    # Load the image and create an ImageClip object
+    image_clip = ImageClip(image_path)
+    
+    # Load the audio file
+    audio_clip = AudioFileClip(audio_path)
+    
+    # Set the duration of the scene based on the audio length or provided duration
+    if duration is None:
+        duration = audio_clip.duration
+    
+    # Set the duration of the image clip
+    image_clip = image_clip.set_duration(duration)
+    
+    # Set the audio for the image clip
+    image_clip = image_clip.set_audio(audio_clip)
+    
+    # Create a TextClip for the overlay text
+    #text_clip = TextClip(text, fontsize=70, color='white', font="Amiri-Bold")  # Customize text, size, color, etc.
+    
+    # Set the text position (centered) and duration to match the image
+    #text_clip = text_clip.set_duration(duration).set_position("center")
+    
+    # Overlay the text on top of the image
+    final_clip = image_clip.set_position("center").set_audio(audio_clip).set_duration(duration)
+    #final_clip = final_clip.overlay(text_clip)
+    
+    return final_clip
+
+def create_video_with_scenes(scenes, output_path):
+    # Combine all the scenes into one video
+    final_video = concatenate_videoclips(scenes)
+    
+    # Export the video to MP4
+    final_video.write_videofile(output_path, codec='libx264', fps=24)
 
 if __name__ == "__main__":
     app.run
