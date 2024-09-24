@@ -244,9 +244,9 @@ def delete_from_blob_storage(blob_url):
 @app.route('/auto_editor', methods=['GET'])
 def auto_editor():
     scenes_data = [
-        {"image": "https://replicate.delivery/yhqm/ekkmdTBkBA3OCyUB1FujrbPxV6fzS25BKzXAimU9msE3J2fmA/out-0.jpg", "audio": "assets/audio.mp3", "text": "Scene 1: Introduction"},
-        {"image": "https://replicate.delivery/yhqm/eesxkLZgGdjEi0Fmuv9K0EnJGB8UQ1pfH0uGR470hQbzTsfNB/out-0.jpg", "audio": "assets/audio2.mp3", "text": "Scene 2: Main Content"},
-        {"image": "https://replicate.delivery/yhqm/UtoYGPZGq5bRCN1YbZwHF7FZC2xghwBz1QftYmfDrse3TsfNB/out-0.jpg", "audio": "assets/audio3.mp3", "text": "Scene 3: Conclusion"}
+        {"image": "assets/image.jpg", "audio": "assets/audio.mp3", "text": "Scene 1: Introduction"},
+        {"image": "assets/image2.jpg", "audio": "assets/audio2.mp3", "text": "Scene 2: Main Content"},
+        {"image": "assets/image3.jpg", "audio": "assets/audio3.mp3", "text": "Scene 3: Conclusion"}
     ]
     
     scenes = []
@@ -258,29 +258,15 @@ def auto_editor():
         scenes.append(scene)
 
     output_path = "final_video.mp4"
-    create_video_with_scenes(scenes, output_path)
+    #create_video_with_scenes(scenes, output_path)
     
     return jsonify({"results": output_path}), 200
 
-def download_image(image_url):
-    """
-    Downloads an image from a URL and saves it as a temporary file.
-    """
-    response = requests.get(image_url)
-    if response.status_code == 200:
-        img = Image.open(BytesIO(response.content))
-        # Save it to a temporary file (in memory or disk)
-        temp_image_path = "temp_image.jpg"
-        img.save(temp_image_path)
-        return temp_image_path
-    else:
-        raise Exception(f"Failed to download image from {image_url}")
+
 
 def create_scene(image_path_or_url, audio_path, text, duration=None):
-    if image_path_or_url.startswith("http"):
-        image_path = download_image(image_path_or_url)
-    else:
-        image_path = image_path_or_url
+    
+    image_path = image_path_or_url
     # Load the image and create an ImageClip object
     image_clip = ImageClip(image_path)
     
@@ -309,12 +295,6 @@ def create_scene(image_path_or_url, audio_path, text, duration=None):
     
     return final_clip
 
-def create_video_with_scenes(scenes, output_path):
-    # Combine all the scenes into one video
-    final_video = concatenate_videoclips(scenes)
-    
-    # Export the video to MP4
-    final_video.write_videofile(output_path, codec='libx264', fps=24)
 
 if __name__ == "__main__":
     app.run
