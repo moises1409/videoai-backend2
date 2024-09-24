@@ -12,10 +12,10 @@ import replicate
 import requests
 from azure.storage.blob import BlobServiceClient
 from urllib.parse import urlparse
-#from moviepy.editor import ImageClip, AudioFileClip, TextClip, concatenate_videoclips
-#import requests
-#from io import BytesIO
-#from PIL import Image
+from moviepy.editor import ImageClip, AudioFileClip, TextClip, concatenate_videoclips
+import requests
+from io import BytesIO
+from PIL import Image
 
 app = Flask(__name__)
 CORS(app)
