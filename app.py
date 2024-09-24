@@ -12,9 +12,9 @@ import replicate
 import requests
 from azure.storage.blob import BlobServiceClient
 from urllib.parse import urlparse
-from moviepy.editor import ImageClip, AudioFileClip, TextClip, concatenate_videoclips
-from io import BytesIO
-from PIL import Image
+#from moviepy.editor import ImageClip, AudioFileClip, TextClip, concatenate_videoclips
+#from io import BytesIO
+#from PIL import Image
 
 app = Flask(__name__)
 CORS(app)
@@ -242,8 +242,6 @@ def delete_from_blob_storage(blob_url):
 
 @app.route('/auto_editor', methods=['GET'])
 def auto_editor():
-    
-
     output_path = "final_video.mp4"
     #create_video_with_scenes(scenes, output_path)
     return output_path
