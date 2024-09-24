@@ -254,7 +254,8 @@ def auto_editor():
         image_path=scene_data["image"]
         audio_path=scene_data["audio"]
         text=scene_data["text"]
-        scene = create_scene(image_path, audio_path, text)
+        #scene = create_scene(image_path, audio_path, text)
+        scene = "hola"
         scenes.append(scene)
 
     output_path = "final_video.mp4"
@@ -262,38 +263,6 @@ def auto_editor():
     
     return jsonify({"results": output_path}), 200
 
-
-
-def create_scene(image_path_or_url, audio_path, text, duration=None):
-    
-    image_path = image_path_or_url
-    # Load the image and create an ImageClip object
-    image_clip = ImageClip(image_path)
-    
-    # Load the audio file
-    audio_clip = AudioFileClip(audio_path)
-    
-    # Set the duration of the scene based on the audio length or provided duration
-    if duration is None:
-        duration = audio_clip.duration
-    
-    # Set the duration of the image clip
-    image_clip = image_clip.set_duration(duration)
-    
-    # Set the audio for the image clip
-    image_clip = image_clip.set_audio(audio_clip)
-    
-    # Create a TextClip for the overlay text
-    #text_clip = TextClip(text, fontsize=70, color='white', font="Amiri-Bold")  # Customize text, size, color, etc.
-    
-    # Set the text position (centered) and duration to match the image
-    #text_clip = text_clip.set_duration(duration).set_position("center")
-    
-    # Overlay the text on top of the image
-    final_clip = image_clip.set_position("center").set_audio(audio_clip).set_duration(duration)
-    #final_clip = final_clip.overlay(text_clip)
-    
-    return final_clip
 
 
 if __name__ == "__main__":
