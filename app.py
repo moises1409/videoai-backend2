@@ -246,8 +246,8 @@ def auto_editor():
 
     output_path = "final_video.mp4"
     #create_video_with_scenes(scenes, output_path)
-    
-    return jsonify({"results": output_path}), 200
+    return output_path
+    #return jsonify({"results": output_path}), 200
 
 
 
