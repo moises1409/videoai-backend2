@@ -12,10 +12,10 @@ import replicate
 import requests
 from azure.storage.blob import BlobServiceClient
 from urllib.parse import urlparse
-from moviepy.editor import ImageClip, AudioFileClip, TextClip, concatenate_videoclips
-import requests
-from io import BytesIO
-from PIL import Image
+#from moviepy.editor import ImageClip, AudioFileClip, TextClip, concatenate_videoclips
+#import requests
+#from io import BytesIO
+#from PIL import Image
 
 app = Flask(__name__)
 CORS(app)
@@ -240,29 +240,6 @@ def delete_from_blob_storage(blob_url):
     except Exception as e:
         print(f"Failed to delete blob: {blob_name}. Error: {str(e)}")
         return False
-
-@app.route('/auto_editor', methods=['GET'])
-def auto_editor():
-    scenes_data = [
-        {"image": "assets/image.jpg", "audio": "assets/audio.mp3", "text": "Scene 1: Introduction"},
-        {"image": "assets/image2.jpg", "audio": "assets/audio2.mp3", "text": "Scene 2: Main Content"},
-        {"image": "assets/image3.jpg", "audio": "assets/audio3.mp3", "text": "Scene 3: Conclusion"}
-    ]
-    
-    scenes = []
-    for scene_data in scenes_data:
-        image_path=scene_data["image"]
-        audio_path=scene_data["audio"]
-        text=scene_data["text"]
-        #scene = create_scene(image_path, audio_path, text)
-        scene = "hola"
-        scenes.append(scene)
-
-    output_path = "final_video.mp4"
-    #create_video_with_scenes(scenes, output_path)
-    
-    return jsonify({"results": output_path}), 200
-
 
 
 if __name__ == "__main__":
