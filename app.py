@@ -250,4 +250,8 @@ def auto_editor():
 
 
 if __name__ == "__main__":
-    app.run
+    # Get the port from the environment (use 8000 if not set)
+    port = int(os.environ.get("PORT", 8000))
+    
+    # Run the app on 0.0.0.0 to accept requests from any IP address
+    app.run(host="0.0.0.0", port=port)
