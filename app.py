@@ -12,7 +12,7 @@ import replicate
 import requests
 from azure.storage.blob import BlobServiceClient
 from urllib.parse import urlparse
-#from moviepy.editor import ImageClip, AudioFileClip, concatenate_videoclips
+from moviepy.editor import *
 #from io import BytesIO
 #from PIL import Image
 
