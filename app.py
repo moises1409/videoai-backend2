@@ -243,11 +243,56 @@ def delete_from_blob_storage(blob_url):
 @app.route('/auto_editor', methods=['GET'])
 def auto_editor():
     output_path = "final_video.mp4"
-    #create_video_with_scenes(scenes, output_path)
-    return output_path
-    #return jsonify({"results": output_path}), 200
+    scenes_data = [
+        {"image": "assets/image.jpg", "audio": "assets/audio.mp3", "text": "Scene 1: Introduction", "scale_factor": 1.2, "zoom": False},
+        {"image": "assets/image2.jpg", "audio": "assets/audio2.mp3", "text": "Scene 2: Main Content", "scale_factor": 1, "zoom": False},
+        {"image": "assets/image3.jpg", "audio": "assets/audio3.mp3", "text": "Scene 3: Conclusion", "scale_factor": 0.8, "zoom": False}
+    ]
+    scenes = []
+    for scene_data in scenes_data:
+        image_path=scene_data["image"]
+        audio_path=scene_data["audio"]
+        text=scene_data["text"]
+        scale_factor = scene_data["scale_factor"]
+        zoom = scene_data["zoom"]
+        
+        scene = create_scene(image_path, audio_path, text, scale_factor, zoom)
+        scenes.append(scene)
+    
+    create_video_with_scenes(scenes, output_path)
+    
+    return jsonify({"results": output_path}), 200
 
+def create_scene(image_path_or_url, audio_path, text,  scale_factor=1.0, zoom=False,duration=None):
+    #if image_path_or_url.startswith("http"):
+     #   image_path = download_image(image_path_or_url)
+    #else:
+    image_path = image_path_or_url
+    # Load the image and create an ImageClip object
+    image_clip = ImageClip(image_path)
 
+    # Load the audio file
+    audio_clip = AudioFileClip(audio_path)
+    
+    # Set the duration of the scene based on the audio length or provided duration
+    if duration is None:
+        duration = audio_clip.duration
+    
+    # Set the duration of the image clip
+    image_clip = image_clip.set_duration(duration)
+    
+    # Set the audio for the image clip
+    image_clip = image_clip.set_audio(audio_clip)
+    
+    return image_clip
+
+def create_video_with_scenes(scenes, output_path):
+    # Combine all the scenes into one video
+    final_video = concatenate_videoclips(scenes)
+    
+    # Export the video to MP4
+    final_video.write_videofile(output_path, codec='libx264', fps=24)
+    
 
 if __name__ == "__main__":
     # Get the port from the environment (use 8000 if not set)
