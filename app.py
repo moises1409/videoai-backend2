@@ -135,7 +135,7 @@ def generate_audio():
                 if chunk:
                     f.write(chunk)
         
-        return upload_to_blob_storage(file_name)
+        return upload_to_blob_storage(file_name, "audio")
         #return "hola"
     except Exception as e:
         print(f"Error generating audio: {e}")
@@ -207,12 +207,17 @@ def delete_audio_files():
     
     return jsonify({"results": results}), 200
 
-def upload_to_blob_storage(local_file_path):
+
+def upload_to_blob_storage(local_file_path, type):
     connect_str = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
     blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-    container_name = 'audio-files'
     unique_id = uuid.uuid4()  # Generates a unique UUID
-    blob_name = f"{unique_id}.mp3"  # Create a unique blob name
+    if type == "video":
+        container_name = 'video-files'
+        blob_name = f"{unique_id}.mp4"  # Create a unique blob name
+    if type == "audio":
+        container_name = 'audio-files'
+        blob_name = f"{unique_id}.mp3"  # Create a unique blob name
     blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
 
     with open(local_file_path, "rb") as data:
@@ -260,8 +265,9 @@ def auto_editor():
         scenes.append(scene)
     
     create_video_with_scenes(scenes, output_path)
+    video_url = upload_to_blob_storage(output_path, "video")
     
-    return jsonify({"results": output_path}), 200
+    return jsonify({"results": video_url}), 200
 
 def create_scene(image_path_or_url, audio_path, text,  scale_factor=1.0, zoom=False,duration=None):
     #if image_path_or_url.startswith("http"):
@@ -292,7 +298,7 @@ def create_video_with_scenes(scenes, output_path):
     
     # Export the video to MP4
     final_video.write_videofile(output_path, codec='libx264', fps=24)
-    
+
 
 if __name__ == "__main__":
     # Get the port from the environment (use 8000 if not set)
