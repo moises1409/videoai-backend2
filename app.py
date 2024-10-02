@@ -2,7 +2,6 @@ import uuid
 import time
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-#from fonctions import *
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
@@ -15,6 +14,8 @@ from urllib.parse import urlparse
 from moviepy.editor import *
 from io import BytesIO
 from PIL import Image
+import math
+import numpy
 
 app = Flask(__name__)
 CORS(app)
@@ -249,19 +250,18 @@ def delete_from_blob_storage(blob_url):
 def auto_editor():
     output_path = "final_video.mp4"
     scenes_data = [
-        {"image": "https://replicate.delivery/yhqm/nGge7olefEGXbJSkSIhMgydSSESucOIb0IALW4W78wK7EoDnA/out-0.jpg", "audio": "assets/audio.mp3", "text": "Scene 1: Introduction", "scale_factor": 1.2, "zoom": False},
-        {"image": "https://replicate.delivery/yhqm/KftJ6xekfAadEoI4exzCtGUcMVmQH3ArZF9WgyaeIxz4TgOcC/out-0.jpg", "audio": "assets/audio2.mp3", "text": "Scene 2: Main Content", "scale_factor": 1, "zoom": False},
-        {"image": "https://replicate.delivery/yhqm/jHTrd6uUkR5zB1wK1IxZy5JZS4teUukREemK3M7RQrifEoDnA/out-0.jpg", "audio": "assets/audio3.mp3", "text": "Scene 3: Conclusion", "scale_factor": 0.8, "zoom": False}
+        {"image": "https://replicate.delivery/yhqm/6RiHtSdNWurZNx5KO2YPHS2NAeaMHmwdiT9mgsZc0fieAjFnA/out-0.jpg", "audio": "assets/audio.mp3", "text": "Scene 1: Introduction"},
+        {"image": "https://replicate.delivery/yhqm/c2FO5afpoBXZG6loS0TezpxX7nXh40bCkReRAwRGAwPEBjFnA/out-0.jpg", "audio": "assets/audio2.mp3", "text": "Scene 2: Main Content"},
+        {"image": "https://replicate.delivery/yhqm/JTFKQsMrfhSLOyifNfUnhnCMmI9swT9ipi7mkfuxxcedEMWcC/out-0.jpg", "audio": "assets/audio3.mp3", "text": "Scene 3: Conclusion"}
     ]
     scenes = []
     for scene_data in scenes_data:
         image_path=scene_data["image"]
         audio_path=scene_data["audio"]
         text=scene_data["text"]
-        scale_factor = scene_data["scale_factor"]
-        zoom = scene_data["zoom"]
         
-        scene = create_scene(image_path, audio_path, text, scale_factor, zoom)
+        
+        scene = create_scene(image_path, audio_path, text)
         scenes.append(scene)
     
     create_video_with_scenes(scenes, output_path)
@@ -269,13 +269,14 @@ def auto_editor():
     
     return jsonify({"results": video_url}), 200
 
-def create_scene(image_path_or_url, audio_path, text,  scale_factor=1.0, zoom=False,duration=None):
-    if image_path_or_url.startswith("http"):
-        image_path = download_image(image_path_or_url)
-    else:
-        image_path = image_path_or_url
+def create_scene(image_path_or_url, audio_path, text, duration=None):
+    image_path = image_path_or_url
+    size = (1920, 1080)
     # Load the image and create an ImageClip object
     image_clip = ImageClip(image_path)
+    image_clip.set_fps(25).resize(size)
+    # Apply a zoom effect
+    image_clip = zoom_in_effect(image_clip, 0.04)
 
     # Load the audio file
     audio_clip = AudioFileClip(audio_path)
@@ -299,21 +300,37 @@ def create_video_with_scenes(scenes, output_path):
     # Export the video to MP4
     final_video.write_videofile(output_path, codec='libx264', fps=24)
 
-def download_image(image_url):
-    """
-    Downloads an image from a URL and saves it as a temporary file.
-    """
-    response = requests.get(image_url)
-    if response.status_code == 200:
-        img = Image.open(BytesIO(response.content))
-        # Resize image or perform operations if necessary, using LANCZOS instead of ANTIALIAS
-        img = img.resize((img.width, img.height), Image.Resampling.LANCZOS)  # Replace ANTIALIAS with LANCZOS
-        # Save it to a temporary file (in memory or disk)
-        temp_image_path = "temp_image.jpg"
-        img.save(temp_image_path)
-        return temp_image_path
-    else:
-        raise Exception(f"Failed to download image from {image_url}")
+
+def zoom_in_effect(clip, zoom_ratio=0.04):
+    def effect(get_frame, t):
+        img = Image.fromarray(get_frame(t))
+        base_size = img.size
+
+        new_size = [
+            math.ceil(img.size[0] * (1 + (zoom_ratio * t))),
+            math.ceil(img.size[1] * (1 + (zoom_ratio * t)))
+        ]
+
+        # The new dimensions must be even.
+        new_size[0] = new_size[0] + (new_size[0] % 2)
+        new_size[1] = new_size[1] + (new_size[1] % 2)
+
+        img = img.resize(new_size, Image.LANCZOS)
+
+        x = math.ceil((new_size[0] - base_size[0]) / 2)
+        y = math.ceil((new_size[1] - base_size[1]) / 2)
+
+        img = img.crop([
+            x, y, new_size[0] - x, new_size[1] - y
+        ]).resize(base_size, Image.LANCZOS)
+
+        result = numpy.array(img)
+        img.close()
+
+        return result
+
+    return clip.fl(effect)
+
 
 if __name__ == "__main__":
     # Get the port from the environment (use 8000 if not set)
