@@ -250,9 +250,9 @@ def delete_from_blob_storage(blob_url):
 def auto_editor():
     output_path = "final_video.mp4"
     scenes_data = [
-        {"image": "https://replicate.delivery/yhqm/6RiHtSdNWurZNx5KO2YPHS2NAeaMHmwdiT9mgsZc0fieAjFnA/out-0.jpg", "audio": "assets/audio.mp3", "text": "Scene 1: Introduction"},
-        {"image": "https://replicate.delivery/yhqm/c2FO5afpoBXZG6loS0TezpxX7nXh40bCkReRAwRGAwPEBjFnA/out-0.jpg", "audio": "assets/audio2.mp3", "text": "Scene 2: Main Content"},
-        {"image": "https://replicate.delivery/yhqm/JTFKQsMrfhSLOyifNfUnhnCMmI9swT9ipi7mkfuxxcedEMWcC/out-0.jpg", "audio": "assets/audio3.mp3", "text": "Scene 3: Conclusion"}
+        {"image": "https://replicate.delivery/yhqm/iuo8gGroj5KALdHMTkWAaMQBME3AndWMSZIggKJaqvRw1v4E/out-0.jpg", "audio": "assets/audio2.mp3", "text": "Scene 1: Introduction"},
+        {"image": "https://replicate.delivery/yhqm/xzEVDMtRwBa0G1KXf5UBiYqXn5WIp22XcRlwLDk6l3dhrfiTA/out-0.jpg", "audio": "assets/audio2.mp3", "text": "Scene 2: Main Content"},
+        {"image": "https://replicate.delivery/yhqm/HxqBgnfV5eq3Gk2J7emZNceHiwjoVpb8gzU2fwnfSv3Hx1v4E/out-0.jpg", "audio": "assets/audio3.mp3", "text": "Scene 3: Conclusion"}
     ]
     scenes = []
     for scene_data in scenes_data:
@@ -260,11 +260,12 @@ def auto_editor():
         audio_path=scene_data["audio"]
         text=scene_data["text"]
         
-        
+        print("creando escenas")
         scene = create_scene(image_path, audio_path, text)
         scenes.append(scene)
-    
+    print("creando video con todas las escenas")
     create_video_with_scenes(scenes, output_path)
+    print("subiendo video")
     video_url = upload_to_blob_storage(output_path, "video")
     
     return jsonify({"results": video_url}), 200
