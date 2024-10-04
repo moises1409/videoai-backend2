@@ -13,11 +13,14 @@ from azure.storage.blob import BlobServiceClient
 from urllib.parse import urlparse
 from moviepy.editor import *
 from threading import Thread
-from io import BytesIO
 from PIL import Image
 import math
 import numpy
-from multiprocessing import Process
+import moviepy.config as mp_config
+
+# Set the path to ImageMagick
+mp_config.change_settings({"IMAGEMAGICK_BINARY": "/usr/bin/magick"})
+#mp_config.change_settings({"IMAGEMAGICK_BINARY": "C:/Program Files/ImageMagick-7.1.1-Q16-HDRI/magick.exe"})
 
 app = Flask(__name__)
 CORS(app)
@@ -214,10 +217,6 @@ def auto_editor():
     thread = Thread(target=generate_video_in_background, args=(task_id, scene_data))
     thread.start()
 
-    # Use multiprocessing to generate the video in a separate process
-    #process = Process(target=generate_video_in_background, args=(task_id, scene_data))
-    #process.start()
-
     # Return the task ID immediately
     return jsonify({"task_id": task_id}), 202
 
@@ -238,7 +237,7 @@ def generate_video_in_background(task_id, scenes_data):
             image_path = scene_data[0]
             audio_path = scene_data[1]
             #text = scene_data["text"]
-            text =""
+            text ="Hola que tal"
             scenes.append(create_scene(image_path, audio_path, text))
 
         create_video_with_scenes(scenes, output_path)
@@ -268,11 +267,21 @@ def create_scene(image_path_or_url, audio_path, text, duration=None):
     
     # Set the duration of the image clip
     image_clip = image_clip.set_duration(duration)
+
+    # Create a TextClip for the overlay text
+    text_clip = TextClip(text, fontsize=70, color='white', font='Amiri-Bold')
+    text_clip = text_clip.set_position(('center', 'bottom')).set_duration(duration)
     
     # Set the audio for the image clip
-    image_clip = image_clip.set_audio(audio_clip)
+    #image_clip = image_clip.set_audio(audio_clip)
+    # Overlay the text on top of the image using CompositeVideoClip
+    video_clip_with_text = CompositeVideoClip([image_clip, text_clip])
+
+    # Set the audio for the video clip
+    video_clip_with_text = video_clip_with_text.set_audio(audio_clip)
     
-    return image_clip
+    return video_clip_with_text
+    #return image_clip
 
 def create_video_with_scenes(scenes, output_path):
     # Combine all the scenes into one video
