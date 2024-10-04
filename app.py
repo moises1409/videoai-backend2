@@ -19,8 +19,14 @@ import numpy
 import moviepy.config as mp_config
 
 # Set the path to ImageMagick
-mp_config.change_settings({"IMAGEMAGICK_BINARY": "/usr/bin/magick"})
+#mp_config.change_settings({"IMAGEMAGICK_BINARY": "/usr/bin/magick"})
 #mp_config.change_settings({"IMAGEMAGICK_BINARY": "C:/Program Files/ImageMagick-7.1.1-Q16-HDRI/magick.exe"})
+
+# Get the ImageMagick binary path from environment variable
+imagemagick_path = os.getenv("IMAGEMAGICK_BINARY", "magick")
+
+# Set the ImageMagick path for MoviePy
+mp_config.change_settings({"IMAGEMAGICK_BINARY": imagemagick_path})
 
 app = Flask(__name__)
 CORS(app)

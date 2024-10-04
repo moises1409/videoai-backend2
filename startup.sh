@@ -6,8 +6,8 @@ bash install_ffmpeg.sh
 export PATH="/home/site/ffmpeg:$PATH"
 
 # Install ImageMagick
-sudo apt-get update
-sudo apt-get install -y imagemagick
+apt-get update
+apt-get install -y imagemagick
 
 # Set the PATH to include ImageMagick
 export PATH="/usr/bin:$PATH"
