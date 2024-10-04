@@ -17,6 +17,7 @@ from io import BytesIO
 from PIL import Image
 import math
 import numpy
+from multiprocessing import Process
 
 app = Flask(__name__)
 CORS(app)
@@ -213,6 +214,10 @@ def auto_editor():
     thread = Thread(target=generate_video_in_background, args=(task_id, scene_data))
     thread.start()
 
+    # Use multiprocessing to generate the video in a separate process
+    #process = Process(target=generate_video_in_background, args=(task_id, scene_data))
+    #process.start()
+
     # Return the task ID immediately
     return jsonify({"task_id": task_id}), 202
 
@@ -247,12 +252,12 @@ def generate_video_in_background(task_id, scenes_data):
 
 def create_scene(image_path_or_url, audio_path, text, duration=None):
     image_path = image_path_or_url
-    size = (1920, 1080)
+    size = (1280, 720)
     # Load the image and create an ImageClip object
     image_clip = ImageClip(image_path)
     image_clip.set_fps(25).resize(size)
     # Apply a zoom effect
-    image_clip = zoom_in_effect(image_clip, 0.04)
+    #image_clip = zoom_in_effect(image_clip, 0.04)
 
     # Load the audio file
     audio_clip = AudioFileClip(audio_path)
@@ -272,6 +277,8 @@ def create_scene(image_path_or_url, audio_path, text, duration=None):
 def create_video_with_scenes(scenes, output_path):
     # Combine all the scenes into one video
     final_video = concatenate_videoclips(scenes)
+
+    final_video = final_video.set_fps(24)  # Reduce frame rate to 24fps for optimization
     
     # Export the video to MP4
     final_video.write_videofile(output_path, codec='libx264', fps=24)
