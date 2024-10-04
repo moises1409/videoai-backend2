@@ -24,6 +24,8 @@ import moviepy.config as mp_config
 
 # Get the ImageMagick binary path from environment variable
 imagemagick_path = os.getenv("IMAGEMAGICK_BINARY", "magick")
+# Log the path to verify if it's correctly set
+print(f"ImageMagick binary path: {imagemagick_path}")
 
 # Set the ImageMagick path for MoviePy
 mp_config.change_settings({"IMAGEMAGICK_BINARY": imagemagick_path})

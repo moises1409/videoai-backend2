@@ -1,5 +1,6 @@
 #!/bin/bash
-# Install FFmpeg
+
+# Install FFmpeg (if needed, through your install_ffmpeg.sh)
 bash install_ffmpeg.sh
 
 # Set the PATH to include FFmpeg
@@ -9,13 +10,27 @@ export PATH="/home/site/ffmpeg:$PATH"
 apt-get update
 apt-get install -y imagemagick
 
+# Verify ImageMagick installation
+if ! command -v magick &> /dev/null
+then
+    echo "ImageMagick could not be installed."
+    exit 1
+else
+    echo "ImageMagick installed successfully."
+fi
+
 # Set the PATH to include ImageMagick
 export PATH="/usr/bin:$PATH"
 
 # Set the ImageMagick binary for MoviePy to use
 export IMAGEMAGICK_BINARY="/usr/bin/magick"
 
+# Verify if the path is correct by checking the version of ImageMagick
+magick -version
+
+# Run the Flask application
 python app.py
+
 
 
 
