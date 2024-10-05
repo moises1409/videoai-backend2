@@ -15,7 +15,7 @@ apt-get install -y imagemagick
 export PATH="/usr/bin:$PATH"
 
 # Set the ImageMagick binary for MoviePy to use
-#export IMAGEMAGICK_BINARY="/usr/bin/magick"
+export IMAGEMAGICK_BINARY="/usr/bin/magick"
 
 # Run the Flask application
 python app.py
