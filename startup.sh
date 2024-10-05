@@ -10,8 +10,8 @@ export PATH="/home/site/ffmpeg:$PATH"
 apt-get update
 apt-get install -y imagemagick
 
-# Verify ImageMagick installation
-if ! command -v magick &> /dev/null
+# Check if ImageMagick was installed correctly by running a simple command
+if ! magick -version &> /dev/null
 then
     echo "ImageMagick could not be installed."
     exit 1
