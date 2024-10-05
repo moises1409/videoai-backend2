@@ -279,7 +279,7 @@ def create_scene(image_path_or_url, audio_path, text, duration=None):
     image_clip = image_clip.set_audio(audio_clip)
 
     # Set the audio for the video clip
-    video_clip_with_text = video_clip_with_text.set_audio(audio_clip)
+    #video_clip_with_text = video_clip_with_text.set_audio(audio_clip)
     
     return image_clip
 
