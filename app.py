@@ -274,14 +274,30 @@ def create_scene(image_path_or_url, audio_path, text, duration=None):
     
     # Set the duration of the image clip
     image_clip = image_clip.set_duration(duration)
+
+     # Create word-by-word TextClips
+    words = text.split()
+    word_clips = []
+    total_words = len(words)
     
+    # Determine duration for each word to appear
+    word_duration = duration / total_words
+    
+    for i, word in enumerate(words):
+        word_clip = TextClip(word, fontsize=40, color='red', font='Amiri-Bold')
+        word_clip = word_clip.set_position(('center', 'center')).set_duration(word_duration)
+        word_clip = word_clip.set_start(i * word_duration)  # Set when each word appears
+        word_clips.append(word_clip)
+    # Overlay the text on top of the image using CompositeVideoClip
+    video_clip_with_text = CompositeVideoClip([image_clip]+word_clips)
+
     # Set the audio for the image clip
-    image_clip = image_clip.set_audio(audio_clip)
+    #image_clip = image_clip.set_audio(audio_clip)
 
     # Set the audio for the video clip
-    #video_clip_with_text = video_clip_with_text.set_audio(audio_clip)
-    
-    return image_clip
+    video_clip_with_text = video_clip_with_text.set_audio(audio_clip)
+    return video_clip_with_text
+    #return image_clip
 
 def create_video_with_scenes(scenes, output_path):
     # Combine all the scenes into one video
