@@ -12,7 +12,7 @@ apt-get install -y imagemagick
 
 
 # Set the PATH to include ImageMagick
-#export PATH="/usr/bin:$PATH"
+export PATH="/usr/bin:$PATH"
 
 # Set the ImageMagick binary for MoviePy to use
 #export IMAGEMAGICK_BINARY="/usr/bin/magick"
