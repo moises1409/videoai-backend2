@@ -23,12 +23,12 @@ import moviepy.config as mp_config
 #mp_config.change_settings({"IMAGEMAGICK_BINARY": "C:/Program Files/ImageMagick-7.1.1-Q16-HDRI/magick.exe"})
 
 # Get the ImageMagick binary path from environment variable
-imagemagick_path = os.getenv("IMAGEMAGICK_BINARY", "magick")
+#imagemagick_path = os.getenv("IMAGEMAGICK_BINARY", "magick")
 # Log the path to verify if it's correctly set
-print(f"ImageMagick binary path: {imagemagick_path}")
+#print(f"ImageMagick binary path: {imagemagick_path}")
 
 # Set the ImageMagick path for MoviePy
-mp_config.change_settings({"IMAGEMAGICK_BINARY": imagemagick_path})
+#mp_config.change_settings({"IMAGEMAGICK_BINARY": imagemagick_path})
 
 app = Flask(__name__)
 CORS(app)
@@ -64,7 +64,6 @@ Limit of 5 scenes, do not exceed 2 sentences per scene. Do not exceed 5 scenes."
 PROMPT_USER1 = "Story is about"
 PROMPT_USER2 = "Create the story in the following language:"
 CHUNK_SIZE = 1024
-SCOPES = ['https://www.googleapis.com/auth/drive.file']
 VOICE_ID_ES = "Ir1QNHvhaJXbAGhT50w3"
 VOICE_ID_DEFAULT = "pNInz6obpgDQGcFmaJgB"
 VOICE_ID_FR = "hFgOzpmS0CMtL2to8sAl"
@@ -275,21 +274,14 @@ def create_scene(image_path_or_url, audio_path, text, duration=None):
     
     # Set the duration of the image clip
     image_clip = image_clip.set_duration(duration)
-
-    # Create a TextClip for the overlay text
-    text_clip = TextClip(text, fontsize=70, color='white', font='Amiri-Bold')
-    text_clip = text_clip.set_position(('center', 'bottom')).set_duration(duration)
     
     # Set the audio for the image clip
-    #image_clip = image_clip.set_audio(audio_clip)
-    # Overlay the text on top of the image using CompositeVideoClip
-    video_clip_with_text = CompositeVideoClip([image_clip, text_clip])
+    image_clip = image_clip.set_audio(audio_clip)
 
     # Set the audio for the video clip
     video_clip_with_text = video_clip_with_text.set_audio(audio_clip)
     
-    return video_clip_with_text
-    #return image_clip
+    return image_clip
 
 def create_video_with_scenes(scenes, output_path):
     # Combine all the scenes into one video
@@ -330,6 +322,56 @@ def zoom_in_effect(clip, zoom_ratio=0.04):
         return result
 
     return clip.fl(effect)
+
+@app.route("/get_video_id", methods=['POST'])
+def generate_video_id():
+    scene_data = request.json.get('scene_data')
+
+    if not scene_data:
+        return jsonify({"error": "No scene data provided"}), 400
+    
+    for data in scene_data:
+          print("Image:", data[0])
+          print("Audio", data[1])
+    url = "https://api.creatomate.com/v1/renders"
+    headers = {
+        "Authorization": f"Bearer {creatomate_api_key}","Content-Type": "application/json"}
+    data = {
+        "template_id": "076cc0f8-ea7a-4bd9-819a-dd6d3e6e64a1",
+        "modifications": {"Image-1": "","Voiceover-1": "","Image-2": "","Voiceover-2": "","Image-3": "","Voiceover-3": "","Image-4": "","Voiceover-4": "","Image-5": "","Voiceover-5": ""}
+    }
+    try:
+        for i in range(min(len(scene_data), 6)):
+            image, audio = scene_data[i]
+            data['modifications'][f'Image-{i+1}'] = image
+            data['modifications'][f'Voiceover-{i+1}'] = audio
+        
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        get_url = url+"/"+response.json()[0]['id']
+        return jsonify({"video_url": get_url})
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return "0"
+
+@app.route("/get_video_final", methods=['GET'])
+def generate_video_final():
+    video_url_id = request.args.get('video_url_id')
+
+    if not video_url_id:
+        return jsonify({"error": "No video_url_id data provided"}), 400
+    
+    headers = {
+        "Authorization": f"Bearer {creatomate_api_key}","Content-Type": "application/json"}
+    try: 
+        response2 = requests.get(video_url_id, headers=headers)
+        video = response2.json()
+        return jsonify(video)
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return "0"   
 
 
 if __name__ == "__main__":
