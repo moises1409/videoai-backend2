@@ -19,7 +19,7 @@ import numpy
 import moviepy.config as mp_config
 
 # Set the path to ImageMagick
-mp_config.change_settings({"IMAGEMAGICK_BINARY": "bin/magick"})
+mp_config.change_settings({"IMAGEMAGICK_BINARY": "bin/convert"})
 #mp_config.change_settings({"IMAGEMAGICK_BINARY": "C:/Program Files/ImageMagick-7.1.1-Q16-HDRI/magick.exe"})
 
 # Get the ImageMagick binary path from environment variable
