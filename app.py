@@ -19,7 +19,7 @@ import numpy
 import moviepy.config as mp_config
 
 # Set the path to ImageMagick
-mp_config.change_settings({"IMAGEMAGICK_BINARY": "bin/magick"})
+#mp_config.change_settings({"IMAGEMAGICK_BINARY": "bin/magick"})
 #mp_config.change_settings({"IMAGEMAGICK_BINARY": "C:/Program Files/ImageMagick-7.1.1-Q16-HDRI/magick.exe"})
 
 # Get the ImageMagick binary path from environment variable
@@ -283,21 +283,21 @@ def create_scene(image_path_or_url, audio_path, text, duration=None):
     # Determine duration for each word to appear
     word_duration = duration / total_words
     
-    for i, word in enumerate(words):
-        word_clip = TextClip(word, fontsize=40, color='red', font='Amiri-Bold')
-        word_clip = word_clip.set_position(('center', 'center')).set_duration(word_duration)
-        word_clip = word_clip.set_start(i * word_duration)  # Set when each word appears
-        word_clips.append(word_clip)
+    #for i, word in enumerate(words):
+    #    word_clip = TextClip(word, fontsize=40, color='red', font='Amiri-Bold')
+    #    word_clip = word_clip.set_position(('center', 'center')).set_duration(word_duration)
+    #    word_clip = word_clip.set_start(i * word_duration)  # Set when each word appears
+    #    word_clips.append(word_clip)
     # Overlay the text on top of the image using CompositeVideoClip
-    video_clip_with_text = CompositeVideoClip([image_clip]+word_clips)
+    #video_clip_with_text = CompositeVideoClip([image_clip]+word_clips)
 
     # Set the audio for the image clip
-    #image_clip = image_clip.set_audio(audio_clip)
+    image_clip = image_clip.set_audio(audio_clip)
 
     # Set the audio for the video clip
-    video_clip_with_text = video_clip_with_text.set_audio(audio_clip)
-    return video_clip_with_text
-    #return image_clip
+    #video_clip_with_text = video_clip_with_text.set_audio(audio_clip)
+    #return video_clip_with_text
+    return image_clip
 
 def create_video_with_scenes(scenes, output_path):
     # Combine all the scenes into one video
